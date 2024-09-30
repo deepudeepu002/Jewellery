@@ -1,0 +1,778 @@
+<!-- <!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Product Management</title>  
+    <style>  
+        body {  
+            font-family: Arial, sans-serif;  
+        }  
+        .modal {  
+            display: none;  
+            position: fixed;  
+            z-index: 1;  
+            padding-top: 100px;  
+            left: 0;  
+            top: 0;  
+            width: 100%;  
+            height: 100%;  
+            overflow: auto;  
+            background-color: rgb(0,0,0);  
+            background-color: rgba(0,0,0,0.4);  
+        }  
+        .modal-content {  
+            background-color: #fefefe;  
+            margin: 5% auto;  
+            padding: 20px;  
+            border: 1px solid #888;  
+            width: 80%;  
+        }  
+        .toast {  
+            display: none;  
+            position: fixed;  
+            bottom: 30px;  
+            left: 50%;  
+            transform: translateX(-50%);  
+            padding: 10px;  
+            background: #333;  
+            color: white;  
+            border-radius: 5px;  
+        }  
+        table {  
+            border-collapse: collapse;  
+            width: 100%;  
+            margin-top: 20px;  
+        }  
+        th, td {  
+            border: 1px solid #ddd;  
+            padding: 8px;  
+            text-align: left;  
+        }  
+        th {  
+            background-color: #f2f2f2;  
+        }  
+        .actions i {  
+            cursor: pointer;  
+            margin-right: 10px;  
+        }  
+    </style>  
+</head>  
+<body>  
+
+<h2>Product Management</h2>  
+<button onclick="showModal()">Add Product</button>  
+
+<div>  
+    <table>  
+        <thead>  
+            <tr>  
+                <th>Product ID</th>  
+                <th>Product Name</th>  
+                <th>Category</th>  
+                <th>Quantity</th>  
+                <th>Total Cost</th>  
+                <th>Actions</th>  
+            </tr>  
+        </thead>  
+        <tbody id="productTableBody">  
+            Product rows will go here  
+        </tbody>  
+    </table>  
+</div>  
+
+<div id="modal" class="modal">  
+    <div class="modal-content">  
+        <span onclick="closeModal()" style="cursor:pointer; float:right;">&times;</span>  
+        <h2>Product Form</h2>  
+        <label for="productId">Product ID:</label>  
+        <input type="text" id="productId" required><br>  
+        <label for="productName">Product Name:</label>  
+        <input type="text" id="productName" required><br>  
+        <label for="category">Category:</label>  
+        <select id="category">  
+            <option value="Fruits">Fruits</option>  
+            <option value="Vegetables">Vegetables</option>  
+        </select><br>  
+        <label for="quantity">Quantity:</label>  
+        <input type="number" id="quantity" min="0" required><br>  
+        <label for="totalCost">Total Cost:</label>  
+        <input type="text" id="totalCost" required><br>  
+        <button id="saveButton" onclick="saveProduct()">Save</button>  
+    </div>  
+</div>  
+
+<div id="toast" class="toast"></div>  
+
+<script>  
+    let currentEditingRow = null;  
+
+    function showModal() {  
+        document.getElementById('modal').style.display = 'block';  
+        clearForm();  
+        document.getElementById('saveButton').textContent = "Save"; // Change button text for adding  
+    }  
+
+    function closeModal() {  
+        document.getElementById('modal').style.display = 'none';  
+    }  
+
+    function clearForm() {  
+        document.getElementById('productId').value = '';  
+        document.getElementById('productName').value = '';  
+        document.getElementById('category').value = 'Fruits';  
+        document.getElementById('quantity').value = '';  
+        document.getElementById('totalCost').value = '';  
+    }  
+
+    function loadProducts() {  
+        const products = JSON.parse(localStorage.getItem('products')) || [];  
+        products.forEach(product => addProductToTable(product));  
+    }  
+
+    function addProductToTable(product) {  
+        const row = document.getElementById('productTableBody').insertRow();  
+        row.insertCell(0).innerText = product.productId;  
+        row.insertCell(1).innerText = product.productName;  
+        row.insertCell(2).innerText = product.category;  
+        
+        const quantityCell = row.insertCell(3);  
+        quantityCell.innerText = product.quantity;  
+        if (parseInt(product.quantity) < 5) {  
+            quantityCell.style.backgroundColor = 'red';  
+            quantityCell.style.color = 'white'; // Optional  
+        }  
+        
+        row.insertCell(4).innerText = product.totalCost;  
+        const actionsCell = row.insertCell(5);  
+        actionsCell.innerHTML = `  
+            <div class="actions">  
+                <i onclick="editRow(this)" title="Edit">✏️</i>  
+                <i onclick="deleteRow(this)" title="Delete">🗑️</i>  
+            </div>`;  
+    }  
+
+    function capitalizeFirstLetter(string) {  
+        return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();  
+    }  
+
+    function saveProduct() {  
+        const productId = document.getElementById('productId').value;  
+        const productName = capitalizeFirstLetter(document.getElementById('productName').value);  
+        const category = document.getElementById('category').value;  
+        const quantity = document.getElementById('quantity').value;  
+        const totalCost = document.getElementById('totalCost').value;  
+
+        const product = {  
+            productId,  
+            productName,  
+            category,  
+            quantity,  
+            totalCost  
+        };  
+
+        const products = JSON.parse(localStorage.getItem('products')) || [];  
+
+        if (currentEditingRow) {  
+            // Editing existing product  
+            const index = Array.from(currentEditingRow.parentNode.children).indexOf(currentEditingRow);  
+            products[index] = product;  // Update the product  
+            updateRowInTable(currentEditingRow, product);  
+        } else {  
+            // Adding new product  
+            products.push(product);  
+            addProductToTable(product);  
+        }  
+
+        localStorage.setItem('products', JSON.stringify(products));  
+        showToast('Product saved successfully!');  
+        closeModal();  
+    }  
+
+    function updateRowInTable(row, product) {  
+        row.cells[0].innerText = product.productId;  
+        row.cells[1].innerText = product.productName;  
+        row.cells[2].innerText = product.category;  
+
+        const quantityCell = row.cells[3];  
+        quantityCell.innerText = product.quantity;  
+        if (parseInt(product.quantity) < 5) {  
+            quantityCell.style.backgroundColor = 'red';  
+            quantityCell.style.color = 'white'; // Optional  
+        } else {  
+            quantityCell.style.backgroundColor = ''; // Reset to default when quantity is sufficient  
+            quantityCell.style.color = '';  
+        }  
+        
+        row.cells[4].innerText = product.totalCost;  
+    }  
+
+    function deleteRow(icon) {  
+        const row = icon.closest("tr");  
+        const productId = row.cells[0].innerText;  
+        const products = JSON.parse(localStorage.getItem('products')) || [];  
+        const updatedProducts = products.filter(product => product.productId !== productId);  
+        localStorage.setItem('products', JSON.stringify(updatedProducts));  
+        row.parentNode.removeChild(row);  
+        showToast('Product deleted successfully!');  
+    }  
+
+    function editRow(icon) {  
+        const row = icon.closest("tr");  
+        currentEditingRow = row;  
+
+        document.getElementById('productId').value = row.cells[0].innerText;  
+        document.getElementById('productName').value = row.cells[1].innerText;  
+        document.getElementById('category').value = row.cells[2].innerText;  
+        document.getElementById('quantity').value = row.cells[3].innerText;  
+        document.getElementById('totalCost').value = row.cells[4].innerText;  
+
+        document.getElementById('modal').style.display = 'block';  
+        document.getElementById('saveButton').textContent = "Update"; // Change button text for updating  
+    }  
+
+    function showToast(message) {  
+        const toast = document.getElementById('toast');  
+        toast.innerText = message;  
+        toast.style.display = 'block';  
+        setTimeout(() => {  
+            toast.style.display = 'none';  
+        }, 3000);  
+    }  
+
+    // Close modal when clicking outside of it  
+    window.onclick = function(event) {  
+        const modal = document.getElementById('modal');  
+        if (event.target === modal) {  
+            closeModal();  
+        }  
+    };  
+
+    // Load products when the page is loaded  
+    window.onload = loadProducts;  
+
+</script>  
+</body>  
+</html>  
+
+
+
+
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Product Management</title>  
+    <style>  
+        /* Add any styles you want here */  
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4); }  
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; }  
+        #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background-color: #333; color: #fff; padding: 16px; border-radius: 5px; }  
+    </style>  
+</head>  
+<body>  
+
+    <button onclick="showModal()">Add Product</button>  
+    <button onclick="showSellModal()">Sell Product</button>  
+
+    <table id="productTable">  
+        <thead>  
+            <tr>  
+                <th>Product ID</th>  
+                <th>Product Name</th>  
+                <th>Category</th>  
+                <th>Quantity</th>  
+                <th>Total Cost</th>  
+                <th>Actions</th>  
+            </tr>  
+        </thead>  
+        <tbody id="productTableBody"></tbody>  
+    </table>  
+
+    <div id="modal" class="modal">  
+        <div class="modal-content">  
+            <span onclick="closeModal()" style="cursor:pointer; float:right;">&times;</span>  
+            <h2>Add Product</h2>  
+            <label for="productId">Product ID:</label>  
+            <input type="text" id="productId" required><br>  
+            <label for="productName">Product Name:</label>  
+            <input type="text" id="productName" required><br>  
+            <label for="category">Category:</label>  
+            <select id="category" required>  
+                <option value="" disabled selected>Select Category</option>  
+                <option value="Vegetables">Vegetables</option>  
+                <option value="Fruits">Fruits</option>  
+            </select><br>  
+            <label for="quantity">Quantity:</label>  
+            <input type="number" id="quantity" min="1" required><br>  
+            <label for="totalCost">Total Cost:</label>  
+            <input type="text" id="totalCost" required><br>  
+            <button id="saveButton" onclick="saveProduct()">Add Product</button>  
+        </div>  
+    </div>  
+
+    <div id="sellModal" class="modal">  
+        <div class="modal-content">  
+            <span onclick="closeSellModal()" style="cursor:pointer; float:right;">&times;</span>  
+            <h2>Sell Product</h2>  
+            <label for="sellProductId">Product ID:</label>  
+            <input type="text" id="sellProductId" required><br>  
+            <label for="sellQuantity">Quantity:</label>  
+            <input type="number" id="sellQuantity" min="1" required><br>  
+            <label for="sellingPrice">Selling Price:</label>  
+            <input type="text" id="sellingPrice" required><br>  
+            <button id="sellButton" onclick="sellProduct()">Sell</button>  
+        </div>  
+    </div>  
+
+    <div id="toast">Message goes here!</div>  
+
+    <script>  
+        let currentEditingRow = null;  
+
+        function showModal() {  
+            clearModalFields();  
+            document.getElementById('modal').style.display = 'block';  
+            document.getElementById('saveButton').textContent = "Add Product";  
+        }  
+
+        function closeModal() {  
+            document.getElementById('modal').style.display = 'none';  
+        }  
+
+        function clearModalFields() {  
+            document.getElementById('productId').value = '';  
+            document.getElementById('productName').value = '';  
+            document.getElementById('category').value = '';  
+            document.getElementById('quantity').value = '';  
+            document.getElementById('totalCost').value = '';  
+            currentEditingRow = null;  
+        }  
+
+        function showSellModal() {  
+            document.getElementById('sellModal').style.display = 'block';  
+        }  
+
+        function closeSellModal() {  
+            document.getElementById('sellModal').style.display = 'none';  
+            document.getElementById('sellProductId').value = '';  
+            document.getElementById('sellQuantity').value = '';  
+            document.getElementById('sellingPrice').value = '';  
+        }  
+
+        function loadProducts() {  
+            const products = JSON.parse(localStorage.getItem('products')) || [];  
+            products.forEach(product => addProductToTable(product));  
+        }  
+
+        function addProductToTable(product) {  
+            const tableBody = document.getElementById('productTableBody');  
+            const row = tableBody.insertRow();  
+            row.innerHTML = `  
+                <td>${product.productId}</td>  
+                <td>${product.productName}</td>  
+                <td>${product.category}</td>  
+                <td>${product.quantity}</td>  
+                <td>${product.totalCost}</td>  
+                <td>  
+                    <div class="actions">  
+                        <i onclick="editRow(this)" title="Edit">✏️</i>  
+                        <i onclick="deleteRow(this)" title="Delete">🗑️</i>  
+                    </div>  
+                </td>  
+            `;  
+        }  
+
+        function saveProduct() {  
+            const productId = document.getElementById('productId').value;  
+            const productName = document.getElementById('productName').value;  
+            const category = document.getElementById('category').value;  
+            const quantity = document.getElementById('quantity').value;  
+            const totalCost = document.getElementById('totalCost').value;  
+
+            const product = {  
+                productId,  
+                productName,  
+                category,  
+                quantity,  
+                totalCost  
+            };  
+
+            const products = JSON.parse(localStorage.getItem('products')) || [];  
+
+            if (currentEditingRow) {  
+                // Editing existing product  
+                const index = Array.from(currentEditingRow.parentNode.children).indexOf(currentEditingRow);  
+                products[index] = product;  // Update the product  
+                updateRowInTable(currentEditingRow, product);  
+            } else {  
+                // Adding new product  
+                products.push(product);  
+                addProductToTable(product);  
+            }  
+
+            localStorage.setItem('products', JSON.stringify(products));  
+            showToast('Product saved successfully!');  
+            closeModal();  
+        }  
+
+        function updateRowInTable(row, product) {  
+            row.cells[0].innerText = product.productId;  
+            row.cells[1].innerText = product.productName;  
+            row.cells[2].innerText = product.category;  
+
+            const quantityCell = row.cells[3];  
+            quantityCell.innerText = product.quantity;  
+            if (parseInt(product.quantity) < 5) {  
+                quantityCell.style.backgroundColor = 'red';  
+                quantityCell.style.color = 'white'; // Optional  
+            } else {  
+                quantityCell.style.backgroundColor = ''; // Reset to default when quantity is sufficient  
+                quantityCell.style.color = '';  
+            }  
+
+            row.cells[4].innerText = product.totalCost;  
+        }  
+
+        function deleteRow(icon) {  
+            const row = icon.closest("tr");  
+            const productId = row.cells[0].innerText;  
+            const products = JSON.parse(localStorage.getItem('products')) || [];  
+            const updatedProducts = products.filter(product => product.productId !== productId);  
+            localStorage.setItem('products', JSON.stringify(updatedProducts));  
+            row.parentNode.removeChild(row);  
+            showToast('Product deleted successfully!');  
+        }  
+
+        function editRow(icon) {  
+            const row = icon.closest("tr");  
+            currentEditingRow = row;  
+
+            document.getElementById('productId').value = row.cells[0].innerText;  
+            document.getElementById('productName').value = row.cells[1].innerText;  
+            document.getElementById('category').value = row.cells[2].innerText;  
+            document.getElementById('quantity').value = row.cells[3].innerText;  
+            document.getElementById('totalCost').value = row.cells[4].innerText;  
+
+            document.getElementById('modal').style.display = 'block';  
+            document.getElementById('saveButton').textContent = "Update"; // Change button text for updating  
+        }  
+
+        function sellProduct() {  
+            const productId = document.getElementById('sellProductId').value;  
+            const soldQuantity = document.getElementById('sellQuantity').value;  
+            const sellingPrice = document.getElementById('sellingPrice').value;  
+
+            const products = JSON.parse(localStorage.getItem('products')) || [];  
+            const product = products.find(p => p.productId === productId);  
+
+            if (product && parseInt(product.quantity) >= parseInt(soldQuantity)) {  
+                product.quantity -= soldQuantity; // Reduce the quantity  
+                localStorage.setItem('products', JSON.stringify(products)); // Update local storage  
+
+                // Update the table UI accordingly  
+                const currentRow = Array.from(document.getElementById('productTableBody').rows).find(  
+                    row => row.cells[0].innerText === productId  
+                );  
+                if (currentRow) {  
+                    updateRowInTable(currentRow, product); // Update the quantity in the UI  
+                }  
+
+                showToast(`Sold ${soldQuantity} of ${product.productName} for $${sellingPrice}`);  
+                closeSellModal();  
+            } else {  
+                showToast('Insufficient quantity or invalid Product ID!');  
+            }  
+        }  
+
+        function showToast(message) {  
+            const toast = document.getElementById('toast');  
+            toast.innerText = message;  
+            toast.style.display = 'block';  
+            setTimeout(() => {  
+                toast.style.display = 'none';  
+            }, 3000);  
+        }  
+
+        // Close modal when clicking outside of it  
+        window.onclick = function(event) {  
+            const modal = document.getElementById('modal');  
+            const sellModal = document.getElementById('sellModal');  
+            if (event.target === modal) {  
+                closeModal();  
+            }  
+            if (event.target === sellModal) {  
+                closeSellModal();  
+            }  
+        };  
+
+        // Load products when the page is loaded  
+        window.onload = loadProducts;  
+    </script>  
+</body>  
+</html>  
+
+
+<!DOCTYPE html>  
+<html lang="en">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Product Management</title>  
+    <style>  
+        /* Add any styles you want here */  
+        .modal { display: none; position: fixed; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgb(0,0,0); background-color: rgba(0,0,0,0.4); }  
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border: 1px solid #888; width: 80%; }  
+        #toast { display: none; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background-color: #333; color: #fff; padding: 16px; border-radius: 5px; }  
+    </style>  
+</head>  
+<body>  
+
+    <button onclick="showModal()">Add Product</button>  
+    <button onclick="showSellModal()">Sell Product</button>  
+
+    <table id="productTable">  
+        <thead>  
+            <tr>  
+                <th>Product ID</th>  
+                <th>Product Name</th>  
+                <th>Category</th>  
+                <th>Quantity</th>  
+                <th>Total Cost</th>  
+                <th>Actions</th>  
+            </tr>  
+        </thead>  
+        <tbody id="productTableBody"></tbody>  
+    </table>  
+
+    <div id="modal" class="modal">  
+        <div class="modal-content">  
+            <span onclick="closeModal()" style="cursor:pointer; float:right;">&times;</span>  
+            <h2>Add Product</h2>  
+            <label for="productId">Product ID:</label>  
+            <input type="text" id="productId" required><br>  
+            <label for="productName">Product Name:</label>  
+            <input type="text" id="productName" required><br>  
+            <label for="category">Category:</label>  
+            <select id="category" required>  
+                <option value="" disabled selected>Select Category</option>  
+                <option value="Vegetables">Vegetables</option>  
+                <option value="Fruits">Fruits</option>  
+            </select><br>  
+            <label for="quantity">Quantity:</label>  
+            <input type="number" id="quantity" min="1" required><br>  
+            <label for="totalCost">Total Cost:</label>  
+            <input type="text" id="totalCost" required><br>  
+            <button id="saveButton" onclick="saveProduct()">Add Product</button>  
+        </div>  
+    </div>  
+
+    <div id="sellModal" class="modal">  
+        <div class="modal-content">  
+            <span onclick="closeSellModal()" style="cursor:pointer; float:right;">&times;</span>  
+            <h2>Sell Product</h2>  
+            <label for="sellProductId">Product ID:</label>  
+            <input type="text" id="sellProductId" required><br>  
+            <label for="sellQuantity">Quantity:</label>  
+            <input type="number" id="sellQuantity" min="1" required><br>  
+            <label for="sellingPrice">Selling Price:</label>  
+            <input type="text" id="sellingPrice" required><br>  
+            <button id="sellButton" onclick="sellProduct()">Sell</button>  
+        </div>  
+    </div>  
+
+    <div id="toast">Message goes here!</div>  
+
+    <script>  
+        let currentEditingRow = null;  
+
+        function showModal() {  
+            clearModalFields();  
+            document.getElementById('modal').style.display = 'block';  
+            document.getElementById('saveButton').textContent = "Add Product";  
+        }  
+
+        function closeModal() {  
+            document.getElementById('modal').style.display = 'none';  
+        }  
+
+        function clearModalFields() {  
+            document.getElementById('productId').value = '';  
+            document.getElementById('productName').value = '';  
+            document.getElementById('category').value = '';  
+            document.getElementById('quantity').value = '';  
+            document.getElementById('totalCost').value = '';  
+            currentEditingRow = null;  
+        }  
+
+        function showSellModal() {  
+            document.getElementById('sellModal').style.display = 'block';  
+        }  
+
+        function closeSellModal() {  
+            document.getElementById('sellModal').style.display = 'none';  
+            document.getElementById('sellProductId').value = '';  
+            document.getElementById('sellQuantity').value = '';  
+            document.getElementById('sellingPrice').value = '';  
+        }  
+
+        function loadProducts() {  
+            const products = JSON.parse(localStorage.getItem('products')) || [];  
+            products.forEach(product => addProductToTable(product));  
+        }  
+
+        function addProductToTable(product) {  
+            const tableBody = document.getElementById('productTableBody');  
+            const row = tableBody.insertRow();  
+            row.innerHTML = `  
+                <td>${product.productId}</td>  
+                <td>${product.productName}</td>  
+                <td>${product.category}</td>  
+                <td>${product.quantity}</td>  
+                <td>${product.totalCost}</td>  
+                <td>  
+                    <div class="actions">  
+                        <i onclick="editRow(this)" title="Edit">✏️</i>  
+                        <i onclick="deleteRow(this)" title="Delete">🗑️</i>  
+                    </div>  
+                </td>  
+            `;  
+        }  
+
+        function saveProduct() {  
+            const productId = document.getElementById('productId').value;  
+            const productName = document.getElementById('productName').value;  
+            const category = document.getElementById('category').value;  
+            const quantity = document.getElementById('quantity').value;  
+            const totalCost = document.getElementById('totalCost').value;  
+
+            const product = {  
+                productId,  
+                productName,  
+                category,  
+                quantity,  
+                totalCost  
+            };  
+
+            const products = JSON.parse(localStorage.getItem('products')) || [];  
+
+            if (currentEditingRow) {  
+                // Editing existing product  
+                const index = Array.from(currentEditingRow.parentNode.children).indexOf(currentEditingRow);  
+                products[index] = product;  // Update the product  
+                updateRowInTable(currentEditingRow, product);  
+            } else {  
+                // Adding new product  
+                products.push(product);  
+                addProductToTable(product);  
+            }  
+
+            localStorage.setItem('products', JSON.stringify(products));  
+            showToast('Product saved successfully!');  
+            closeModal();  
+        }  
+
+        function updateRowInTable(row, product) {  
+            row.cells[0].innerText = product.productId;  
+            row.cells[1].innerText = product.productName;  
+            row.cells[2].innerText = product.category;  
+
+            const quantityCell = row.cells[3];  
+            quantityCell.innerText = product.quantity;  
+            if (parseInt(product.quantity) < 5) {  
+                quantityCell.style.backgroundColor = 'red';  
+                quantityCell.style.color = 'white'; // Optional  
+            } else {  
+                quantityCell.style.backgroundColor = ''; // Reset to default when quantity is sufficient  
+                quantityCell.style.color = '';  
+            }  
+
+            row.cells[4].innerText = product.totalCost;  
+        }  
+
+        function deleteRow(icon) {  
+            const row = icon.closest("tr");  
+            const productId = row.cells[0].innerText;  
+            const products = JSON.parse(localStorage.getItem('products')) || [];  
+            const updatedProducts = products.filter(product => product.productId !== productId);  
+            localStorage.setItem('products', JSON.stringify(updatedProducts));  
+            row.parentNode.removeChild(row);  
+            showToast('Product deleted successfully!');  
+        }  
+
+        function editRow(icon) {  
+            const row = icon.closest("tr");  
+            currentEditingRow = row;  
+
+            document.getElementById('productId').value = row.cells[0].innerText;  
+            document.getElementById('productName').value = row.cells[1].innerText;  
+            document.getElementById('category').value = row.cells[2].innerText;  
+            document.getElementById('quantity').value = row.cells[3].innerText;  
+            document.getElementById('totalCost').value = row.cells[4].innerText;  
+
+            document.getElementById('modal').style.display = 'block';  
+            document.getElementById('saveButton').textContent = "Update"; // Change button text for updating  
+        }  
+
+        function sellProduct() {  
+            const productId = document.getElementById('sellProductId').value;  
+            const soldQuantity = document.getElementById('sellQuantity').value;  
+            const sellingPrice = document.getElementById('sellingPrice').value;  
+
+            const products = JSON.parse(localStorage.getItem('products')) || [];  
+            const product = products.find(p => p.productId === productId);  
+
+            if (product && parseInt(product.quantity) >= parseInt(soldQuantity)) {  
+                product.quantity -= soldQuantity; // Reduce the quantity  
+                localStorage.setItem('products', JSON.stringify(products)); // Update local storage  
+
+                // Update the table UI accordingly  
+                const currentRow = Array.from(document.getElementById('productTableBody').rows).find(  
+                    row => row.cells[0].innerText === productId  
+                );  
+                if (currentRow) {  
+                    updateRowInTable(currentRow, product); // Update the quantity in the UI  
+                }  
+
+                showToast(`Sold ${soldQuantity} of ${product.productName} for $${sellingPrice}`);  
+                closeSellModal();  
+            } else {  
+                showToast('Insufficient quantity or invalid Product ID!');  
+            }  
+        }  
+
+        function showToast(message) {  
+            const toast = document.getElementById('toast');  
+            toast.innerText = message;  
+            toast.style.display = 'block';  
+            setTimeout(() => {  
+                toast.style.display = 'none';  
+            }, 3000);  
+        }  
+
+        // Close modal when clicking outside of it  
+        window.onclick = function(event) {  
+            const modal = document.getElementById('modal');  
+            const sellModal = document.getElementById('sellModal');  
+            if (event.target === modal) {  
+                closeModal();  
+            }  
+            if (event.target === sellModal) {  
+                closeSellModal();  
+            }  
+        };  
+
+        // Load products when the page is loaded  
+        window.onload = loadProducts;  
+    </script>  
+</body>  
+</html>  -->
+
+
+
+
+
+
+
+
