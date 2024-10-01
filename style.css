@@ -1,0 +1,45 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: poppins;
+}
+
+:root{
+    --main-color : #cab273;
+    --main-light-color : #fffbf0;
+    --secondary-color : #551756;
+}
+
+
+/* New products */
+
+#new_product{
+    max-width: 1200px;
+    width: 90%;
+    margin: 90px auto;
+
+}
+
+.new-product-heading{
+    width: 100%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin-bottom: 40px;
+}
+
+.new-product-heading h2{
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: #202020;
+}
+
+.new-product-heading p{
+    color:#707070;
+    font-size: 0.8rem;
+    font-weight: 400;
+
+}
