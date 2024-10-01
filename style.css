@@ -5,7 +5,7 @@ body {
     background-color: #f4f4f4;
 }
 .section-blog{
-    
+
 }
 .blog-section {
     max-width: 900px;
@@ -37,6 +37,10 @@ h1 {
     margin-right: 20px;
     width: 100%;
     max-width: 400px;
+    opacity: 50%;
+}
+.blog-image:hover{
+    opacity: 100%;
 }
 
 .blog-content {
