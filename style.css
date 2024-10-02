@@ -1,0 +1,187 @@
+/*body{
+    margin: 0;
+}
+.footer-div{
+    background: #efe3e3 ;
+    
+    height: 80vh;
+    opacity: 1;
+      
+}
+
+.container{
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+
+
+}*/
+body{
+   height: 100%;
+}
+
+
+*{
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    color: black;
+    text-align: center;
+    
+    
+    
+    
+    
+}
+
+.footer-div{
+    background: #efe3e3 ;
+    padding-top: 50px;
+    
+    
+    
+    
+}
+.container{
+    width: 1500px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    
+    
+    
+    
+}
+.footer-content{
+    width: 25%;
+   
+    
+    
+}
+h3{
+    font-size: 28px;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #832729;
+}
+.footer-content p{
+    width:190px;
+    margin: auto;
+    padding: 7px;
+    text-align: start;
+    
+    
+    
+    
+}
+.footer-content ul{
+    text-align: center;
+    
+    
+    
+}
+.list{
+    padding: 0;
+    margin-left: 85px;
+    
+    
+}
+.list li{
+    width: auto;
+    text-align: start;
+    list-style-type:none;
+    padding: 15px;
+    position: relative;
+}
+.list li::before{
+    content: '';
+    position: absolute;
+    transform: translate(-50%,-50%);
+    left: 50%;
+    top: 100%;
+    width: 0;
+    height: 2px;
+    
+    transition-duration: .5s;
+}
+.list li:hover::before{
+    width: 70px;
+}
+.social-icons{
+    text-align: center;
+    padding: 0;
+}
+.social-icons li{
+    display: inline-block;
+    text-align: center;
+    padding: 5px;
+}
+.social-icons i{
+    color: #626262;
+    font-size: 25px;
+}
+a{
+    text-decoration: none;
+}
+a:hover{
+    color: #f18930;
+}
+.social-icons i:hover{
+    color: #f18930;
+}
+.bottom-bar{
+    background: #efe3e3;
+    text-align: start;
+    margin-left: 80px;
+    align-items: center;
+    padding: 7px;
+    
+    
+}
+.bottom-bar p{
+    
+    margin-right: 60px;
+    font-size: 16px;
+    padding: 7px;
+    text-align: end;
+    
+}
+ul{
+    list-style: none;
+    
+    
+
+}
+
+.hidden-xs-down {
+    border: .0313rem solid #626262;
+    opacity: 1;
+}
+/*.fa-location-dot{
+  padding-right: 5px;
+   
+}
+.fa-phone{
+    padding-right: 5px;
+}
+.fa-envelope{
+    padding-right: 5px; 
+}*/
+.fa-cc-visa {
+    font-size: 40px;
+   
+}
+.fa-cc-mastercard{
+    font-size: 40px;
+    
+}
+.fa-cc-paypal{
+    font-size: 40px;
+
+}
