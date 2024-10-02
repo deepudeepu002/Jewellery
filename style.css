@@ -49,10 +49,10 @@ body{
     
 }
 .container{
-    width: 1500px;
+    
     
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     
     
     
