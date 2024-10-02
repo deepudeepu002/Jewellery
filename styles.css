@@ -6,7 +6,7 @@
   body { background-color: var(--primary); }
 
 .owl-carousel img   
-{ height:220px;width: 100px;
+{ height:220px;width: 40%;
     border-top-left-radius: 25px;
     border-bottom-left-radius: 25px;
 }
@@ -25,20 +25,30 @@ font-variant:  small-caps;
   text-align: center;
 }
 
-.reviews{
+.image-content-wrapper{
     display: flex;
+   
 }
 
-.reviewContent{
+.content-part{
     background-color:var(--secondary); 
     opacity: .8;
     color:  var(--primary);
     padding: 5px;
-    height:220px;width: 400px; 
+    height:220px;width: 60%; 
     font-style: italic;
-    font-size: small;
+    font-size:medium;
     border-top-right-radius: 25px;
     border-bottom-right-radius: 25px;
 }
 
- 
+ .fa-solid{
+   
+    color: #ffd700;
+     /* color:#ffdb58; */
+     /* color:#d4a017; */
+ font-size: 20px;
+  
+ }
+.image-part{width:30%}
+.content-part{width:70%}
