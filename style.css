@@ -4,11 +4,13 @@ body {
     padding: 0;
     background-color: #f4f4f4;
 }
-.section-blog{
-
+.image-section-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .blog-section {
-    max-width: 900px;
+    /* max-width: 900px; */
     margin: 50px auto;
     padding: 20px;
     background-color: #fff;
