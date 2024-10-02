@@ -566,9 +566,14 @@
       var swiper = new Swiper(".mySwiperNewProduct", {
         slidesPerView: 1,
         spaceBetween: 10,
+        loop:true,  // Enable infinite loop
+        autoplay:{
+          dealy: 3000,  // Delay between slides (3 seconds)
+          disableOnInteraction: false,// Keep autoplay even after user interaction
+        },
         pagination: {
           el: ".swiper-pagination",
-          clickable: true,
+          clickable: true,  // Make pagination bullets clickable
         },
         breakpoints: {
           640: {
@@ -591,7 +596,9 @@
         },
       });
     </script>
+    
 
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script src="./index.js"></script>
   </body>
 </html>
