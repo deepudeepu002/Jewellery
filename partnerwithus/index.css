@@ -32,7 +32,7 @@ img{
 .readmore{
     width: 120px;
     height: 50px;
-    background-color: rgba(216, 220, 179, 0.251);
+    background-color: inherit;
     color: rgb(0, 0, 0);
     position: relative;padding: 10px;
     font-family: 'Roboto Condensed', sans-serif;
@@ -63,5 +63,6 @@ img{
     .info{
         text-align: center;
     }
+    
 
 }
