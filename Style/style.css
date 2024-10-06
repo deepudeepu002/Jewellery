@@ -95,14 +95,14 @@
 
 /* About Start */
 
-.bg-custom {
+.bgcustom {
     background-image: url('../Assets/Images/about4.jpg');
     background-size:cover;
     background-position: center;
     background-repeat: no-repeat;
     width: 100vw;
-    height: 50vh;
-}
+    height: 50vh; 
+ }
 
 /* About End */
 
