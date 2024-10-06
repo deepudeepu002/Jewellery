@@ -15,9 +15,7 @@
 /* NavBar start */
 
 .navbar-contents{
-    position: fixed;
-    top: 0px;
-    z-index: 3;
+    /* z-index: 3; */
     background-color: #efe3e3;
 }
 .nav-logo, .footer-logo{
